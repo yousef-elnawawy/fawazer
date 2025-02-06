@@ -328,23 +328,23 @@
   <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"></script>
   <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
   <script>
-    document.addEventListener('DOMContentLoaded', function() {
-      // عناصر DOM
-      var bgMusic = document.getElementById('bg-music');
-      var playBtn = document.getElementById('playBtn');
-      var exitBtn = document.getElementById('exitBtn');
-      var aboutBtn = document.getElementById('aboutBtn');
-      var welcomeScreen = document.getElementById('welcomeScreen');
-      var gameContainer = document.getElementById('gameContainer');
-      var submitAnswerBtn = document.getElementById('submitAnswerBtn');
-      var choicesContainer = document.getElementById('choicesContainer');
-      var questionTitle = document.getElementById('questionTitle');
-      var questionText = document.getElementById('questionText');
-      var feedback = document.getElementById('feedback');
-      var questionBox = document.getElementById('questionBox');
-      var resultContainer = document.getElementById('resultContainer');
-      var resultText = document.getElementById('resultText');
-      var restartBtn = document.getElementById('restartBtn');
+document.addEventListener('DOMContentLoaded', function() {
+  // عناصر DOM
+  var bgMusic = document.getElementById('bg-music');
+  var playBtn = document.getElementById('playBtn');
+  var exitBtn = document.getElementById('exitBtn');
+  var aboutBtn = document.getElementById('aboutBtn');
+  var welcomeScreen = document.getElementById('welcomeScreen');
+  var gameContainer = document.getElementById('gameContainer');
+  var submitAnswerBtn = document.getElementById('submitAnswerBtn');
+  var choicesContainer = document.getElementById('choicesContainer');
+  var questionTitle = document.getElementById('questionTitle');
+  var questionText = document.getElementById('questionText');
+  var feedback = document.getElementById('feedback');
+  var questionBox = document.getElementById('questionBox');
+  var resultContainer = document.getElementById('resultContainer');
+  var resultText = document.getElementById('resultText');
+  var restartBtn = document.getElementById('restartBtn');
 
       var allQuestions = [
   { question: "ما هو الشيء الذي يمشي ويجري ولكن لا يملك أقدام؟", choices: ["الماء", "الريح", "الظل", "الزمن"], answer: 0 },
@@ -463,132 +463,130 @@
   { question: "ما هو الشيء الذي يملك يداً ولكنه لا يستطيع أن يمسك؟", choices: ["الباب", "المقبض", "الساعة", "القلم"], answer: 2 },
   { question: "ما هو الشيء الذي يملك لساناً ولكنه لا يتكلم؟", choices: ["الحذاء", "القلم", "الملعقة", "الشوكة"], answer: 0 },
 ];
+var totalGameQuestions = 10; // عدد الأسئلة لكل لعبة
+  var gameQuestions = [];    // الأسئلة المختارة للعبة الحالية
+  var currentQuestionIndex = 0;
+  var correctCount = 0;
+  var selectedChoice = null;
 
+  // دالة لاختيار أسئلة عشوائية من المجموعة الكاملة
+  function generateGameQuestions() {
+    // إنشاء نسخة من المجموعة الكاملة
+    var tempQuestions = [...allQuestions];
+    gameQuestions = [];
+    for (var i = 0; i < totalGameQuestions && tempQuestions.length > 0; i++) {
+      var randomIndex = Math.floor(Math.random() * tempQuestions.length);
+      gameQuestions.push(tempQuestions[randomIndex]);
+      tempQuestions.splice(randomIndex, 1); // حذف السؤال المختار من القائمة
+    }
+  }
 
-      var totalGameQuestions = 10; // عدد الأسئلة لكل لعبة
-      var gameQuestions = [];    // الأسئلة المختارة للعبة الحالية
-      var currentQuestionIndex = 0;
-      var correctCount = 0;
-      var selectedChoice = null;
-
-      // دالة لاختيار أسئلة عشوائية من المجموعة الكاملة
-      function generateGameQuestions() {
-        // إنشاء نسخة من المجموعة الكاملة
-        var tempQuestions = [...allQuestions];
-        gameQuestions = [];
-        for (var i = 0; i < totalGameQuestions && tempQuestions.length > 0; i++) {
-          var randomIndex = Math.floor(Math.random() * tempQuestions.length);
-          gameQuestions.push(tempQuestions[randomIndex]);
-          tempQuestions.splice(randomIndex, 1);
-        }
-      }
-
-      // دالة لعرض السؤال الحالي مع خياراته
-      function loadQuestion(index) {
-        if (index < gameQuestions.length) {
-          var q = gameQuestions[index];
-          questionTitle.innerText = "سؤال " + (index + 1) + ":";
-          questionText.innerText = q.question;
-          choicesContainer.innerHTML = "";
-          selectedChoice = null;
-          submitAnswerBtn.disabled = true;
-          feedback.innerText = "";
-          
-          q.choices.forEach(function(choice, i) {
-            var div = document.createElement('div');
-            div.className = "choice-item border";
-            div.innerHTML = `<i class="far fa-circle mr-2"></i> ${choice}`;
-            div.dataset.index = i;
-            div.addEventListener('click', function() {
-              // إزالة التحديد من كل الخيارات
-              var items = document.querySelectorAll('.choice-item');
-              items.forEach(function(item) {
-                item.classList.remove('active');
-                item.innerHTML = `<i class="far fa-circle mr-2"></i> ${item.innerText.trim()}`;
-              });
-              // تحديد الخيار الحالي
-              div.classList.add('active');
-              div.innerHTML = `<i class="fas fa-dot-circle mr-2"></i> ${choice}`;
-              selectedChoice = parseInt(div.dataset.index);
-              submitAnswerBtn.disabled = false;
-            });
-            choicesContainer.appendChild(div);
+  // دالة لعرض السؤال الحالي مع خياراته
+  function loadQuestion(index) {
+    if (index < gameQuestions.length) {
+      var q = gameQuestions[index];
+      questionTitle.innerText = "سؤال " + (index + 1) + ":";
+      questionText.innerText = q.question;
+      choicesContainer.innerHTML = "";
+      selectedChoice = null;
+      submitAnswerBtn.disabled = true;
+      feedback.innerText = "";
+      
+      q.choices.forEach(function(choice, i) {
+        var div = document.createElement('div');
+        div.className = "choice-item border";
+        div.innerHTML = `<i class="far fa-circle mr-2"></i> ${choice}`;
+        div.dataset.index = i;
+        div.addEventListener('click', function() {
+          // إزالة التحديد من كل الخيارات
+          var items = document.querySelectorAll('.choice-item');
+          items.forEach(function(item) {
+            item.classList.remove('active');
+            item.innerHTML = `<i class="far fa-circle mr-2"></i> ${item.innerText.trim()}`;
           });
-        } else {
-          // انتهاء اللعبة وعرض النتيجة
-          showResult();
-        }
-      }
-
-      // دالة لعرض نتيجة اللعبة
-      function showResult() {
-        questionBox.style.display = "none";
-        resultContainer.style.display = "block";
-        resultText.innerHTML = `لقد أجبت بشكل صحيح على <strong>${correctCount}</strong> من أصل <strong>${totalGameQuestions}</strong> سؤالاً.`;
-        if (correctCount === totalGameQuestions) {
-          resultText.innerHTML += `<br><span class="text-success" style="font-size:1.3rem;">ف مبروك! أجبت كل الأسئلة بشكل صحيح!</span>`;
-        }
-      }
-
-      // عند النقر على زر "بداية اللعب"
-      playBtn.addEventListener('click', function() {
-        welcomeScreen.style.display = "none";
-        gameContainer.style.display = "flex";
-        // تشغيل الموسيقى (قد يتطلب تفاعل المستخدم)
-        bgMusic.play();
-        // إعداد الأسئلة العشوائية للعبة
-        generateGameQuestions();
-        currentQuestionIndex = 0;
-        correctCount = 0;
-        questionBox.style.display = "block";
-        resultContainer.style.display = "none";
-        submitAnswerBtn.style.display = "inline-block";
-        loadQuestion(currentQuestionIndex);
+          // تحديد الخيار الحالي
+          div.classList.add('active');
+          div.innerHTML = `<i class="fas fa-dot-circle mr-2"></i> ${choice}`;
+          selectedChoice = parseInt(div.dataset.index);
+          submitAnswerBtn.disabled = false;
+        });
+        choicesContainer.appendChild(div);
       });
+    } else {
+      // انتهاء اللعبة وعرض النتيجة
+      showResult();
+    }
+  }
 
-      // عند النقر على زر "خروج"
-      exitBtn.addEventListener('click', function() {
-        window.close(); // قد لا يعمل في بعض المتصفحات
-      });
+  // دالة لعرض نتيجة اللعبة
+  function showResult() {
+    questionBox.style.display = "none";
+    resultContainer.style.display = "block";
+    resultText.innerHTML = `لقد أجبت بشكل صحيح على <strong>${correctCount}</strong> من أصل <strong>${totalGameQuestions}</strong> سؤالاً.`;
+    if (correctCount === totalGameQuestions) {
+      resultText.innerHTML += `<br><span class="text-success" style="font-size:1.3rem;">ف مبروك! أجبت كل الأسئلة بشكل صحيح!</span>`;
+    }
+  }
 
-      // عند النقر على زر "عن المطور"
-      aboutBtn.addEventListener('click', function() {
-        $('#aboutModal').modal('show');
-      });
+  // عند النقر على زر "بداية اللعب"
+  playBtn.addEventListener('click', function() {
+    welcomeScreen.style.display = "none";
+    gameContainer.style.display = "flex";
+    // تشغيل الموسيقى (قد يتطلب تفاعل المستخدم)
+    bgMusic.play();
+    // إعداد الأسئلة العشوائية للعبة
+    generateGameQuestions();
+    currentQuestionIndex = 0;
+    correctCount = 0;
+    questionBox.style.display = "block";
+    resultContainer.style.display = "none";
+    submitAnswerBtn.style.display = "inline-block";
+    loadQuestion(currentQuestionIndex);
+  });
 
-      // التحقق من الإجابة عند النقر على زر "إرسال الإجابة"
-      submitAnswerBtn.addEventListener('click', function() {
-        if (selectedChoice === null) {
-          feedback.innerText = "يرجى اختيار إجابة!";
-          return;
-        }
-        var currentQuestion = gameQuestions[currentQuestionIndex];
-        if (selectedChoice === currentQuestion.answer) {
-          feedback.innerHTML = "<span class='text-success'>إجابة صحيحة!</span>";
-          correctCount++;
-        } else {
-          feedback.innerHTML = "<span class='text-danger'>إجابة خاطئة! الإجابة الصحيحة هي: " 
-            + currentQuestion.choices[currentQuestion.answer] + "</span>";
-        }
-        // الانتقال للسؤال التالي بعد تأخير بسيط
-        setTimeout(function() {
-          currentQuestionIndex++;
-          loadQuestion(currentQuestionIndex);
-        }, 1500);
-      });
+  // عند النقر على زر "خروج"
+  exitBtn.addEventListener('click', function() {
+    window.close(); // قد لا يعمل في بعض المتصفحات
+  });
 
-      // عند النقر على زر "إعادة اللعبة"
-      restartBtn.addEventListener('click', function() {
-        // إعادة تهيئة المتغيرات وإعادة تشغيل اللعبة
-        generateGameQuestions();
-        currentQuestionIndex = 0;
-        correctCount = 0;
-        questionBox.style.display = "block";
-        resultContainer.style.display = "none";
-        submitAnswerBtn.style.display = "inline-block";
-        loadQuestion(currentQuestionIndex);
-      });
-    });
+  // عند النقر على زر "عن المطور"
+  aboutBtn.addEventListener('click', function() {
+    $('#aboutModal').modal('show');
+  });
+
+  // التحقق من الإجابة عند النقر على زر "إرسال الإجابة"
+  submitAnswerBtn.addEventListener('click', function() {
+    if (selectedChoice === null) {
+      feedback.innerText = "يرجى اختيار إجابة!";
+      return;
+    }
+    var currentQuestion = gameQuestions[currentQuestionIndex];
+    if (selectedChoice === currentQuestion.answer) {
+      feedback.innerHTML = "<span class='text-success'>إجابة صحيحة!</span>";
+      correctCount++;
+    } else {
+      feedback.innerHTML = "<span class='text-danger'>إجابة خاطئة! الإجابة الصحيحة هي: " 
+        + currentQuestion.choices[currentQuestion.answer] + "</span>";
+    }
+    // الانتقال للسؤال التالي بعد تأخير بسيط
+    setTimeout(function() {
+      currentQuestionIndex++;
+      loadQuestion(currentQuestionIndex);
+    }, 1500);
+  });
+
+  // عند النقر على زر "إعادة اللعبة"
+  restartBtn.addEventListener('click', function() {
+    // إعادة تهيئة المتغيرات وإعادة تشغيل اللعبة
+    generateGameQuestions();
+    currentQuestionIndex = 0;
+    correctCount = 0;
+    questionBox.style.display = "block";
+    resultContainer.style.display = "none";
+    submitAnswerBtn.style.display = "inline-block";
+    loadQuestion(currentQuestionIndex);
+  });
+});
   </script>
 </body>
 </html>
